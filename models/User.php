@@ -14,6 +14,7 @@ use yii\web\IdentityInterface;
  * @property string $name
  * @property string $password write-only password
  * @property string $salt
+ * @property string $auth_key
  * @property string $access_token
  * @property string $create_date
  *
@@ -36,7 +37,7 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             [['username', 'name', 'surname', 'password'], 'required'],
             ['username', 'email'],
-            ['username', 'unique'],
+            [['username', 'auth_key', 'access_token'], 'unique'],
         ];
     }
 
@@ -136,7 +137,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getId ()
     {
-        return $this->getPrimaryKey()["id"];
+        return $this->id;
     }
 
     /**
@@ -144,7 +145,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthKey ()
     {
-        return $this->access_token;
+        return $this->auth_key;
     }
 
     /**
@@ -181,6 +182,6 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function generateAuthKey ()
     {
-        $this->access_token = Yii::$app->security->generateRandomString();
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 }
