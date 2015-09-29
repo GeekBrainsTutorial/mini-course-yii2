@@ -22,6 +22,11 @@ use yii\web\IdentityInterface;
 class User extends ActiveRecord implements IdentityInterface
 {
     /**
+     * Validate constant
+     */
+    const MIN_LENGTH_PASS = 6;
+
+    /**
      * @inheritdoc
      */
     public static function tableName ()
@@ -36,6 +41,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'name', 'surname', 'password'], 'required'],
+            ['password', 'string', 'min' => self::MIN_LENGTH_PASS],
             ['username', 'email'],
             [['username', 'auth_key', 'access_token'], 'unique'],
         ];
