@@ -16,6 +16,7 @@ use yii\web\UploadedFile;
  * @property string $create_date
  *
  * @property User $user
+ * @property Comment[] $comments
  */
 class Blog extends \yii\db\ActiveRecord
 {
@@ -92,6 +93,14 @@ class Blog extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['blog_id' => 'id']);
     }
 
     /**

@@ -60,8 +60,11 @@ class BlogController extends Controller
      */
     public function actionView($id)
     {
+        $comment = new \app\models\Comment();
+        $comment->blog_id = $id;
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'comment' => $comment,
         ]);
     }
 

@@ -10,9 +10,11 @@ use yii\widgets\ActiveForm;
 
 <div class="comment-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['action' => '/comment/create']); ?>
 
     <?= $form->field($model, 'comment')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'blog_id')->hiddenInput()->label(false) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Создать' : 'Изменить',
