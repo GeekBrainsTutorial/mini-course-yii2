@@ -9,6 +9,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * BlogController implements the CRUD actions for Blog model.
@@ -48,7 +49,6 @@ class BlogController extends Controller
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -74,13 +74,12 @@ class BlogController extends Controller
     {
         $model = new Blog();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if(Blog::saveImageAndModel($model, Yii::$app->request->post()))
             return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -93,13 +92,12 @@ class BlogController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if(Blog::saveImageAndModel($model, Yii::$app->request->post()))
             return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
     /**

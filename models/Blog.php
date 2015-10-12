@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "blg_blog".
@@ -10,6 +11,7 @@ use Yii;
  * @property integer $id
  * @property integer $user_id
  * @property string $description
+ * @property string $image
  * @property string $article
  * @property string $create_date
  *
@@ -20,8 +22,10 @@ class Blog extends \yii\db\ActiveRecord
     /**
      * Validate constants
      */
-    const DESCRIPTION_MAX_LENGTH = 255;
+    const DESCRIPTION_AND_IMAGE_MAX_LENGTH = 255;
     const ARTICLE_MAX_LENGTH = 65000;
+
+    public $imageFile;
 
     /**
      * @inheritdoc
@@ -37,14 +41,15 @@ class Blog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'description', 'article'], 'required'],
+            [['description', 'article'], 'required'],
+            [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg', 'on' => 'create'],
             [['user_id'], 'integer'],
             ['user_id', 'exist',
                 'targetClass' => User::className(),
                 'targetAttribute' => 'id'],
             [['article'], 'string', 'max' => self::ARTICLE_MAX_LENGTH],
             [['create_date'], 'safe'],
-            [['description'], 'string', 'max' => self::DESCRIPTION_MAX_LENGTH]
+            [['description', 'image'], 'string', 'max' => self::DESCRIPTION_AND_IMAGE_MAX_LENGTH]
         ];
     }
 
@@ -57,6 +62,7 @@ class Blog extends \yii\db\ActiveRecord
             'id' => 'ID',
             'user_id' => 'Пользователь',
             'user_name' => 'Пользователь',
+            'imageFile' => 'Изображение',
             'description' => 'Описание',
             'article' => 'Статья',
             'create_date' => 'Дата создания',
@@ -73,6 +79,8 @@ class Blog extends \yii\db\ActiveRecord
         if (parent::beforeSave($insert))
         {
             $this->user_id = Yii::$app->user->id;
+            if(empty($this->imageFile))
+                unset($this->imageFile);
             return true;
         }
         return false;
@@ -93,5 +101,24 @@ class Blog extends \yii\db\ActiveRecord
     public static function find()
     {
         return new BlogQuery(get_called_class());
+    }
+
+    /**
+     * @param Blog $model
+     * @param Array $post
+     * @return mixed
+     */
+    public static function saveImageAndModel($model, $post)
+    {
+        if ($model->load($post)) {
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if($model->imageFile->baseName)
+            {
+                $model->image = 'images/' . md5($model->imageFile->baseName . time()) . '.' . $model->imageFile->extension;
+                file_put_contents(Yii::getAlias('@app/web/' . $model->image), file_get_contents($model->imageFile->tempName));
+            }
+            return ($model->validate() && $model->save());
+        }
+        return false;
     }
 }
